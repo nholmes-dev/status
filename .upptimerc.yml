@@ -7,6 +7,7 @@ sites:
     url: https://nathanholmes.uk
   - name: Off Streets On Sports
     url: https://offstreetsonsports.com
+    icon: https://offstreetsonsports.com/favicon.ico
   - name: Preston Autocare LTD
     url: https://prestonautocareltd.pages.dev
 assignees:
