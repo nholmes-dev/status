@@ -3,13 +3,15 @@ repo: status
 sites:
   - name: BaizeBoard
     url: https://baizeboard.com
-  - name: Nathan Holmes — Portfolio
-    url: https://nathanholmes.uk
   - name: Off Streets On Sports
     url: https://offstreetsonsports.com
     icon: https://offstreetsonsports.com/favicon.svg
   - name: Preston Autocare LTD
-    url: https://prestonautocareltd.pages.dev
+    url: https://prestonautocareltd.pages.dev  
+  - name: NH — Portfolio
+    url: https://nathanholmes.uk
+  - name: NH — Web Design
+    url: https://nhwebdesign.co.uk
 assignees:
   - nholmes-dev
 status-website:
