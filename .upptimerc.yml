@@ -3,7 +3,7 @@ repo: status
 sites:
   - name: BaizeBoard
     url: https://baizeboard.com
-   - name: RalphieStudios
+  - name: RalphieStudios
     url: https://ralphiestudios.com
   - name: Off Streets On Sports
     url: https://offstreetsonsports.com
