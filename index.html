@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nholmes.dev | System Status</title>
+    <meta name="description" content="Live uptime monitoring for all sites and services hosted by Nathan Holmes.">
+    <link rel="icon" type="image/png" href="https://nathanholmes.uk/favicon.png">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-color: #1e293b;
+            --text-color: #cbd5e1;
+            --heading-color: #f8fafc;
+            --accent-color: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border-color: #334155;
+            --success-color: #22c55e;
+            --danger-color: #ef4444;
+            --muted-color: #64748b;
+            --max-width: 800px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+        }
+
+        .site-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+        }
+
+        .site-header .logo {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--heading-color);
+        }
+
+        .site-header nav a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .site-header nav a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 1.5rem 0;
+        }
+
+        h1 {
+            color: var(--heading-color);
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin: 0 0 0.2rem 0;
+        }
+
+        h2 {
+            color: var(--accent-color);
+            font-size: 1.6rem;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.3rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            border: 1px solid;
+            margin: 1.5rem 0;
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .status-banner.all-good {
+            background-color: rgba(34, 197, 94, 0.08);
+            border-color: rgba(34, 197, 94, 0.25);
+            color: #86efac;
+        }
+
+        .status-banner.degraded {
+            background-color: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.25);
+            color: #fca5a5;
+        }
+
+        .status-banner.loading {
+            background-color: rgba(51, 65, 85, 0.5);
+            border-color: var(--border-color);
+            color: var(--muted-color);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-dot.up { background-color: var(--success-color); }
+        .status-dot.down { background-color: var(--danger-color); }
+        .status-dot.loading { background-color: var(--muted-color); }
+
+        .site-card {
+            background-color: var(--card-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px 25px;
+            margin: 16px 0;
+            transition: border-color 0.2s ease;
+        }
+
+        .site-card:hover { border-color: var(--accent-color); }
+
+        .site-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+
+        .site-name {
+            color: var(--heading-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .site-url {
+            color: var(--muted-color);
+            font-size: 0.82rem;
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-badge.up {
+            background-color: rgba(34, 197, 94, 0.12);
+            color: #86efac;
+        }
+
+        .status-badge.down {
+            background-color: rgba(239, 68, 68, 0.12);
+            color: #fca5a5;
+        }
+
+        .site-stats {
+            display: flex;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        .stat { display: flex; flex-direction: column; }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--muted-color);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .stat-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--heading-color);
+            margin-top: 2px;
+        }
+
+        .stat-value.accent { color: var(--accent-color); }
+
+        .skeleton {
+            background: linear-gradient(90deg, #1e293b 25%, #2d3f55 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            height: 16px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .updated-time {
+            font-size: 0.8rem;
+            color: var(--muted-color);
+            margin-top: 0.25rem;
+        }
+
+        footer {
+            padding: 1rem 0 2rem 0;
+            text-align: center;
+        }
+
+        footer p {
+            font-size: 0.85rem;
+            color: var(--muted-color);
+            margin: 0;
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 520px) {
+            .site-card-header { flex-direction: column; gap: 8px; }
+            .site-stats { gap: 16px; }
+            h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="site-header">
+                <span class="logo">nholmes.dev</span>
+                <nav>
+                    <a href="https://nathanholmes.uk">&larr; nathanholmes.uk</a>
+                </nav>
+            </div>
+        </header>
+        <hr>
+
+        <main>
+            <h1>System Status</h1>
+            <p>Live uptime monitoring for all sites and services hosted by Nathan Holmes.</p>
+
+            <div id="status-banner" class="status-banner loading">
+                <div class="status-dot loading"></div>
+                <span>Loading status&hellip;</span>
+            </div>
+
+            <div id="sites-container">
+                <div class="site-card">
+                    <div class="skeleton" style="width:45%;margin-bottom:12px;"></div>
+                    <div class="skeleton" style="width:30%;margin-bottom:14px;"></div>
+                    <div class="skeleton" style="width:70%;"></div>
+                </div>
+                <div class="site-card">
+                    <div class="skeleton" style="width:55%;margin-bottom:12px;"></div>
+                    <div class="skeleton" style="width:35%;margin-bottom:14px;"></div>
+                    <div class="skeleton" style="width:65%;"></div>
+                </div>
+                <div class="site-card">
+                    <div class="skeleton" style="width:50%;margin-bottom:12px;"></div>
+                    <div class="skeleton" style="width:28%;margin-bottom:14px;"></div>
+                    <div class="skeleton" style="width:68%;"></div>
+                </div>
+                <div class="site-card">
+                    <div class="skeleton" style="width:42%;margin-bottom:12px;"></div>
+                    <div class="skeleton" style="width:32%;margin-bottom:14px;"></div>
+                    <div class="skeleton" style="width:72%;"></div>
+                </div>
+            </div>
+
+            <p class="updated-time" id="updated-time"></p>
+        </main>
+
+        <hr>
+        <footer>
+            <p>Monitored by <a href="https://upptime.js.org" target="_blank" rel="noopener noreferrer">Upptime</a> &mdash; &copy; 2026 <a href="https://nathanholmes.uk">Nathan Holmes</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const SUMMARY_URL = 'https://raw.githubusercontent.com/nholmes-dev/status/master/history/summary.json';
+
+        function fmt(ms) {
+            return ms ? ms + ' ms' : '—';
+        }
+
+        function pct(val) {
+            return (val !== undefined && val !== null) ? parseFloat(val).toFixed(2) + '%' : '—';
+        }
+
+        function render(sites) {
+            const container = document.getElementById('sites-container');
+            const banner = document.getElementById('status-banner');
+            const allUp = sites.every(s => s.status === 'up');
+
+            banner.className = 'status-banner ' + (allUp ? 'all-good' : 'degraded');
+            banner.innerHTML = `
+                <div class="status-dot ${allUp ? 'up' : 'down'}"></div>
+                <span>${allUp ? 'All systems operational' : 'One or more systems degraded'}</span>
+            `;
+
+            container.innerHTML = sites.map(site => `
+                <div class="site-card">
+                    <div class="site-card-header">
+                        <div>
+                            <div class="site-name">${site.name}</div>
+                            <div class="site-url">${site.url}</div>
+                        </div>
+                        <div class="status-badge ${site.status === 'up' ? 'up' : 'down'}">
+                            <div class="status-dot ${site.status === 'up' ? 'up' : 'down'}"></div>
+                            ${site.status === 'up' ? 'Operational' : 'Down'}
+                        </div>
+                    </div>
+                    <div class="site-stats">
+                        <div class="stat">
+                            <span class="stat-label">Response</span>
+                            <span class="stat-value accent">${fmt(site.time)}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">24 h</span>
+                            <span class="stat-value">${pct(site.uptimeDay)}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">7 days</span>
+                            <span class="stat-value">${pct(site.uptimeWeek)}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">30 days</span>
+                            <span class="stat-value">${pct(site.uptimeMonth)}</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">1 year</span>
+                            <span class="stat-value">${pct(site.uptimeYear)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('updated-time').textContent =
+                'Data from Upptime · Fetched at ' + new Date().toLocaleTimeString('en-GB');
+        }
+
+        fetch(SUMMARY_URL)
+            .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+            .then(render)
+            .catch(() => {
+                document.getElementById('status-banner').className = 'status-banner degraded';
+                document.getElementById('status-banner').innerHTML =
+                    '<div class="status-dot down"></div><span>Could not load status data</span>';
+                document.getElementById('sites-container').innerHTML = '';
+            });
+    </script>
+</body>
+</html>
