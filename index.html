@@ -325,9 +325,12 @@
             container.innerHTML = sites.map(site => `
                 <div class="site-card">
                     <div class="site-card-header">
-                        <div>
-                            <div class="site-name">${site.name}</div>
-                            <div class="site-url">${site.url}</div>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <img src="https://www.google.com/s2/favicons?domain=${site.url}&sz=32" width="20" height="20" alt="" style="border-radius:4px;flex-shrink:0;" onerror="this.style.display='none'">
+                            <div>
+                                <div class="site-name">${site.name}</div>
+                                <div class="site-url">${site.url}</div>
+                            </div>
                         </div>
                         <div class="status-badge ${site.status === 'up' ? 'up' : 'down'}">
                             <div class="status-dot ${site.status === 'up' ? 'up' : 'down'}"></div>
